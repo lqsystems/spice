@@ -21,7 +21,7 @@ for i, row in df.iterrows():
 
 buffers = []
 for k,v in tubes.items():
-    buffers.append({"address": addresses_96[i], "buffer_volumes": v})
+    buffers.append({"address": addresses_96[k], "buffer_volumes": v})
 
 
 d = {"setup": setup, "buffers": buffers}
