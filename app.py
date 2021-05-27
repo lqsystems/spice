@@ -9,7 +9,7 @@ import opentronsfastapi
 
 # Set our opentrons_env to opentrons.simulate
 # On real robots, this would be set to opentrons.execute
-opentronsfastapi.opentrons_env = oe
+opentronsfastapi.opentrons_env = os
 
 app = FastAPI()
 
@@ -46,7 +46,7 @@ class BufferSetup(BaseModel):
 
 class BufferVol(BaseModel):
     name: str
-    volume: int
+    volume: float
 
 class BufferTube(BaseModel):
     address: str
@@ -108,8 +108,6 @@ def buffer_protocol(buffers:BufferProtocol):
         p20s_transfers = []
         p300s_transfers = []
         
-
-
         transfer = {"aspirate": 0, "dispenses": []}
         for tv in target_vols:
             if tv["volume"] > 20:
@@ -150,5 +148,5 @@ def buffer_protocol(buffers:BufferProtocol):
     buffer_transfer_helper(largest_average_buffer)
     for buffer_key, _ in buffer_dict.items():
         if buffer_key != largest_average_buffer:
-            buffer_transfer_helper(largest_average_buffer)
+            buffer_transfer_helper(buffer_key)
     ctx.home()
