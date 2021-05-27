@@ -1,0 +1,17 @@
+aionotify==0.2.0
+attrs==20.3.0
+click==7.1.2
+fastapi==0.63.0
+h11==0.12.0
+jsonschema==3.2.0
+numpy==1.20.2
+opentrons==4.2.0
+opentrons-shared-data==4.2.0
+opentronsfastapi==0.0.1
+pydantic==1.4
+pyrsistent==0.17.3
+pyserial==3.5
+six==1.15.0
+starlette==0.13.6
+typing-extensions==3.7.4.3
+uvicorn==0.13.4
