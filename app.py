@@ -9,7 +9,7 @@ import opentronsfastapi
 
 # Set our opentrons_env to opentrons.simulate
 # On real robots, this would be set to opentrons.execute
-opentronsfastapi.opentrons_env = oe
+opentronsfastapi.opentrons_env = os
 
 app = FastAPI()
 

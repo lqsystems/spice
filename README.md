@@ -4,6 +4,28 @@ Spice is Armada bio's [opentrons FastAPI](https://github.com/koeng101/opentronsf
 
 Instead of simple raw python, opentronsfastapi allows for parameterized protocols and more complicated protocols to be executed. This can be integrated with larger automation systems into a cohesive whole.
 
+## Developmenting spice
+
+In order to test spice, make sure the `opentronsfastapi.opentrons_env` variable is set to opentrons simulate.
+
+```python
+opentronsfastapi.opentrons_env = os
+```
+
+This variable needs to be set to `oe` when pushed to production. To get into a development environment, start a python virtual environment in the directory with the following commands:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r requirements.txt
+```
+
+This will install all the necessary requirements in order to run spice. In order to locally start spice for testing, run
+
+```bash
+uvicorn app:app --reload --host=0.0.0.0
+```
+
 ## Starting spice
 
 In order to start Spice, ssh into the robot with `ssh root@{IP}`. Execute the following commands:
