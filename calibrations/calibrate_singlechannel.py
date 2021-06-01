@@ -5,8 +5,8 @@ def run(ctx):
     tubes = ctx.load_labware("opentrons_24_tuberack_generic_2ml_screwcap", "2")
     standard384 = ctx.load_labware("corning_384_wellplate_112ul_flat", "3")
 
-    p20s = ctx.load_instrument("p20_single_gen2", "left", tip_racks=[ctx.load_labware("opentrons_96_filtertiprack_20ul","4")])
-    p300s = ctx.load_instrument("p300_single_gen2", "right", tip_racks=[ctx.load_labware("opentrons_96_filtertiprack_200ul","5")])
+    p20s = ctx.load_instrument("p20_single_gen2", "left", tip_racks=[ctx.load_labware("opentrons_96_tiprack_20ul","4")])
+    p300s = ctx.load_instrument("p300_single_gen2", "right", tip_racks=[ctx.load_labware("opentrons_96_tiprack_300ul","5")])
 
     for pipette in [p20s, p300s]:
         pipette.pick_up_tip()

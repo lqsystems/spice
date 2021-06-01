@@ -27,7 +27,7 @@ def demo_procedure(dispenseWell:DispenseWell):
 
     ctx.home()
     plate = ctx.load_labware("corning_384_wellplate_112ul_flat", 1)
-    tip_rack = ctx.load_labware("opentrons_96_filtertiprack_20ul", 2)
+    tip_rack = ctx.load_labware("opentrons_96_tiprack_20ul", 2)
     p20 = ctx.load_instrument("p20_single_gen2", "left", tip_racks=[tip_rack])
 
     p20.pick_up_tip()
@@ -67,7 +67,7 @@ def buffer_protocol(buffers:BufferProtocol):
     ctx.home()
 
     # Setup 96 well labware
-    p20_tip_racks = [ctx.load_labware("opentrons_96_filtertiprack_20ul", 3)]
+    p20_tip_racks = [ctx.load_labware("opentrons_96_tiprack_20ul", 3)]
     p300_tip_racks = [ctx.load_labware("opentrons_96_tiprack_300ul", 4)]
     p20s = ctx.load_instrument("p20_single_gen2", "left", tip_racks=p20_tip_racks)
     p300s = ctx.load_instrument("p300_single_gen2", "right", tip_racks=p300_tip_racks)
