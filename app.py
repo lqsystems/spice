@@ -9,7 +9,7 @@ import opentronsfastapi
 
 # Set our opentrons_env to opentrons.simulate
 # On real robots, this would be set to opentrons.execute
-opentronsfastapi.opentrons_env = os
+opentronsfastapi.opentrons_env = oe 
 
 app = FastAPI()
 
@@ -67,8 +67,8 @@ def buffer_protocol(buffers:BufferProtocol):
     ctx.home()
 
     # Setup 96 well labware
-    p20_tip_racks = [ctx.load_labware("opentrons_96_tiprack_20ul", 3)]
-    p300_tip_racks = [ctx.load_labware("opentrons_96_tiprack_300ul", 4)]
+    p20_tip_racks = [ctx.load_labware("opentrons_96_tiprack_20ul", x) for x in [3]]
+    p300_tip_racks = [ctx.load_labware("opentrons_96_tiprack_300ul", x) for x in [6]]
     p20s = ctx.load_instrument("p20_single_gen2", "left", tip_racks=p20_tip_racks)
     p300s = ctx.load_instrument("p300_single_gen2", "right", tip_racks=p300_tip_racks)
     output_buffers = ctx.load_labware("nest_96_wellplate_100ul_pcr_full_skirt", 1)
@@ -118,35 +118,40 @@ def buffer_protocol(buffers:BufferProtocol):
                     p300s_transfers.append(p300s_transfer)
                     p300s_transfer = {"aspirate": 0, "dispenses": []}
                 p300s_transfer["dispenses"].append(tv)
+                p300s_transfer["aspirate"] += tv["volume"]
             if tv["volume"] <= 20:
                 if p20s_tip == False:
                     p20s_transfer = {"aspirate": 0, "dispenses": []}
                     p20s_tip = True
                 if p20s_transfer["aspirate"] + tv["volume"] > 18:
-                    p20s_transfers.append(p300s_transfer)
+                    p20s_transfers.append(p20s_transfer)
                     p20s_transfer = {"aspirate": 0, "dispenses": []}
+                p20s_transfer["dispenses"].append(tv)
+                p20s_transfer["aspirate"] += tv["volume"]
 
         if p300s_tip == True:
             p300s_transfers.append(p300s_transfer)
         if p20s_tip == True:
             p20s_transfers.append(p20s_transfer)
 
-        for transfer in p300s_transfers:
+        if p300s_tip == True:
             p300s.pick_up_tip()
-            p300s.aspirate(transfer["aspirate"] + (transfer["aspirate"] * .1), input_well) # add 10%
-            for dispense in transfer["dispenses"]:
-                p300s.dispense(dispense["volume"], dispense["to"])
+            for transfer in p300s_transfers:
+                p300s.aspirate(transfer["aspirate"], input_well)
+                for dispense in transfer["dispenses"]:
+                    p300s.dispense(dispense["volume"], dispense["to"])
             p300s.drop_tip()
-        
-        for transfer in p20s_transfers:
+        if p20s_tip == True:
             p20s.pick_up_tip()
-            p20s.aspirate(transfer["aspirate"] + (transfer["aspirate"] * .1), input_well) # add 10%
-            for dispense in transfer["dispenses"]:
-                p20s.dispense(dispense["volume"], dispense["to"])
+            for transfer in p20s_transfers:
+                p20s.aspirate(transfer["aspirate"], input_well)
+                for dispense in transfer["dispenses"]:
+                    p20s.dispense(dispense["volume"], dispense["to"])
             p20s.drop_tip()
 
     buffer_transfer_helper(largest_average_buffer)
     for buffer_key, _ in buffer_dict.items():
         if buffer_key != largest_average_buffer:
+            print(buffer_key)
             buffer_transfer_helper(buffer_key)
     ctx.home()
