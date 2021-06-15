@@ -7,7 +7,7 @@ jsonschema==3.2.0
 numpy==1.20.2
 opentrons==4.2.0
 opentrons-shared-data==4.2.0
-opentronsfastapi==0.0.1
+opentronsfastapi==0.1.0
 pydantic==1.4
 pyrsistent==0.17.3
 pyserial==3.5

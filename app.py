@@ -3,40 +3,10 @@ import math
 from pydantic import BaseModel
 from typing import List
 import asyncio
-import opentrons.execute as oe
-import opentrons.simulate as os
-import opentronsfastapi
-
-# Set our opentrons_env to opentrons.simulate
-# On real robots, this would be set to opentrons.execute
-opentronsfastapi.opentrons_env = oe 
+import opentronsfastapi as otf
 
 app = FastAPI()
-
-class DispenseWell(BaseModel):
-    address: str
-
-@app.post("/api/demo")
-@opentronsfastapi.opentrons_execute()
-def demo_procedure(dispenseWell:DispenseWell):
-
-    # Asyncio must be set to allow the robot to run protocols in
-    # the background while still responding to API requests
-    asyncio.set_event_loop(asyncio.new_event_loop())
-    ctx = opentronsfastapi.opentrons_env.get_protocol_api('2.9')
-
-    ctx.home()
-    plate = ctx.load_labware("corning_384_wellplate_112ul_flat", 1)
-    tip_rack = ctx.load_labware("opentrons_96_tiprack_20ul", 2)
-    p20 = ctx.load_instrument("p20_single_gen2", "left", tip_racks=[tip_rack])
-
-    p20.pick_up_tip()
-
-    p20.aspirate(10, plate.wells_by_name()['A1'])
-    p20.dispense(10, plate.wells_by_name()[dispenseWell.address])
-
-    p20.drop_tip()
-    ctx.home()
+app.include_router(otf.default_routes)
 
 ### Buffer optimization ###
 
@@ -57,22 +27,19 @@ class BufferProtocol(BaseModel):
     buffers: List[BufferTube]
 
 @app.post("/api/buffer")
-@opentronsfastapi.opentrons_execute()
-def buffer_protocol(buffers:BufferProtocol):
-
-    # Asyncio must be set to allow the robot to run protocols in
-    # the background while still responding to API requests
-    asyncio.set_event_loop(asyncio.new_event_loop())
-    ctx = opentronsfastapi.opentrons_env.get_protocol_api('2.9')
-    ctx.home()
+@otf.opentrons_execute(apiLevel='2.0')
+def buffer_protocol(buffers:BufferProtocol,
+                    version = otf.ot_flags.protocol_version_flag,
+                    protocol = otf.ot_flags.protocol_context
+                    ):
 
     # Setup 96 well labware
-    p20_tip_racks = [ctx.load_labware("opentrons_96_tiprack_20ul", x) for x in [3]]
-    p300_tip_racks = [ctx.load_labware("opentrons_96_tiprack_300ul", x) for x in [6]]
-    p20s = ctx.load_instrument("p20_single_gen2", "left", tip_racks=p20_tip_racks)
-    p300s = ctx.load_instrument("p300_single_gen2", "right", tip_racks=p300_tip_racks)
-    output_buffers = ctx.load_labware("nest_96_wellplate_100ul_pcr_full_skirt", 1)
-    input_buffers = ctx.load_labware("opentrons_24_tuberack_generic_2ml_screwcap", 2)
+    p20_tip_racks = [protocol.load_labware("opentrons_96_tiprack_20ul", x) for x in [3]]
+    p300_tip_racks = [protocol.load_labware("opentrons_96_tiprack_300ul", x) for x in [6]]
+    p20s = protocol.load_instrument("p20_single_gen2", "left", tip_racks=p20_tip_racks)
+    p300s = protocol.load_instrument("p300_single_gen2", "right", tip_racks=p300_tip_racks)
+    output_buffers = protocol.load_labware("nest_96_wellplate_100ul_pcr_full_skirt", 1)
+    input_buffers = protocol.load_labware("opentrons_24_tuberack_generic_2ml_screwcap", 2)
 
     # First, set all buffer tubes to a dictionary
     buffer_dict = {}
@@ -152,6 +119,4 @@ def buffer_protocol(buffers:BufferProtocol):
     buffer_transfer_helper(largest_average_buffer)
     for buffer_key, _ in buffer_dict.items():
         if buffer_key != largest_average_buffer:
-            print(buffer_key)
             buffer_transfer_helper(buffer_key)
-    ctx.home()
