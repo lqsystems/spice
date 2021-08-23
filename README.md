@@ -1,6 +1,6 @@
 # Spice
 
-Spice is Armada bio's [opentrons FastAPI](https://github.com/koeng101/opentronsfastapi) api. This api is deployed onto the raspberry pi in an opentrons robot and runs from the robot's IP on port 8000.
+Spice is LQ's [opentrons FastAPI](https://github.com/koeng101/opentronsfastapi) api. This api is deployed onto the raspberry pi in an opentrons robot and runs from the robot's IP on port 8000.
 
 Instead of simple raw python, opentronsfastapi allows for parameterized protocols and more complicated protocols to be executed. This can be integrated with larger automation systems into a cohesive whole.
 
